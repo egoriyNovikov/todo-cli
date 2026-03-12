@@ -2,4 +2,4 @@
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-dd('Hello World');
+(new EgorNovikov\TodoCli\Console\Console($argv))->run();

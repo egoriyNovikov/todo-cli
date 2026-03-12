@@ -17,8 +17,12 @@ services:
     develop:
       watch:
         - action: sync
-          path: ./app
+          path: .
           target: /var/www/html
+          ignore:
+            - vendor/
+            - .git/
+            - db/
   db:
     image: mariadb
     restart: always
