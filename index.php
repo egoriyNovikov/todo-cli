@@ -1,5 +1,14 @@
 <?php
 
+use EgorNovikov\TodoCli\App;
+use EgorNovikov\TodoCli\Console\Commands\ArgvInput;
+use EgorNovikov\TodoCli\Database\Database;
+
 require_once __DIR__ . '/vendor/autoload.php';
 
-(new EgorNovikov\TodoCli\Console\Console($argv))->run();
+$databaseConfig = require __DIR__ . '/config/database.php';
+$db = new Database($databaseConfig);
+
+$input = new ArgvInput($argv);
+
+(new App($input, $db))->run();
