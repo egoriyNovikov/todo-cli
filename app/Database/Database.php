@@ -33,6 +33,7 @@ class Database {
       );
     } catch (PDOException $e) {
       throw new \RuntimeException("Connection failed: " . $e->getMessage(), 0, $e);
+      echo "\033[31mОшибка при подключении к базе данных: " . $e->getMessage() . "\033[0m\n";
     }
     return $this->pdo;
   }
@@ -48,4 +49,5 @@ class Database {
     $stmt->execute($params);
     return $stmt->rowCount();
   }
+
 }
