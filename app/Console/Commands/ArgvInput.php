@@ -18,24 +18,44 @@ class ArgvInput
   public static function normalizeArguments(?array $arguments): ?array {
     if (!$arguments) return null;
 
-    $flags = array_values(array_filter($arguments, fn($arg) => str_starts_with($arg, '--')));
+    $flags      = self::parseFlags($arguments);
+    $attributes = self::parseAttributes($arguments);
+    $tiny_flags = self::parseTinyFlags($arguments);
+    $other      = self::parseOther($arguments);
 
-    $attributes = array_map(function($argument) {
+    return [
+      'flags'      => $flags,
+      'attributes' => $attributes,
+      'tiny_flags' => $tiny_flags,
+      'other'      => $other,
+    ];
+
+  }
+
+  private function parseFlags(array $arguments): array {
+    return array_values(array_filter($arguments, fn($arg) => str_starts_with($arg, '-') && str_starts_with($arg, '--')));
+  }
+
+  private function parseAttributes(array $arguments): array {
+    return array_map(function($argument) {
       $list = explode('=', $argument);
       return [
         'key' => $list[0],
         'value' => $list[1] ?? null,
       ];
     }, array_filter($arguments, fn($arg) => str_contains($arg, '=') && !str_starts_with($arg, '--')));
+  }
 
-    $other = array_filter($arguments, fn($arg) => !str_starts_with($arg, '--') && !str_contains($arg, '='));
+  private function parseTinyFlags(array $arguments): array {
+    return array_map(function($argument) {
+      return [
+        'key' => $argument,
+        'value' => true,
+      ];
+    }, array_filter($arguments, fn($arg) => str_starts_with($arg, '-') && !str_starts_with($arg, '--') && !str_contains($arg, '=')));
+  }
 
-    return [
-      'flags' => $flags,
-      'attributes' => $attributes,
-      'other' => $other,
-    ];
-
-    
+  private function parseOther(array $arguments): array {
+    return array_filter($arguments, fn($arg) => !str_starts_with($arg, '-') && !str_contains($arg, '='));
   }
 }
