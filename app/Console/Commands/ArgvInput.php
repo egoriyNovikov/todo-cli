@@ -17,7 +17,6 @@ class ArgvInput
 
   public static function normalizeArguments(?array $arguments): ?array {
     if (!$arguments) return null;
-
     $flags      = self::parseFlags($arguments);
     $attributes = self::parseAttributes($arguments);
     $tiny_flags = self::parseTinyFlags($arguments);
@@ -32,30 +31,30 @@ class ArgvInput
 
   }
 
-  private function parseFlags(array $arguments): array {
+  private static function parseFlags(array $arguments): array {
     return array_values(array_filter($arguments, fn($arg) => str_starts_with($arg, '-') && str_starts_with($arg, '--')));
   }
 
-  private function parseAttributes(array $arguments): array {
-    return array_map(function($argument) {
-      $list = explode('=', $argument);
-      return [
-        'key' => $list[0],
-        'value' => $list[1] ?? null,
-      ];
-    }, array_filter($arguments, fn($arg) => str_contains($arg, '=') && !str_starts_with($arg, '--')));
+  private static function parseAttributes(array $arguments): array {
+    $result = [];
+    $items = array_values(array_filter($arguments, fn($arg) => str_contains($arg, '=') && !str_starts_with($arg, '--')));
+    foreach ($items as $argument) {
+      [$key, $value] = array_pad(explode('=', $argument, 2), 2, null);
+      $result[$key] = $value;
+    }
+    return $result;
   }
 
-  private function parseTinyFlags(array $arguments): array {
-    return array_map(function($argument) {
-      return [
-        'key' => $argument,
-        'value' => true,
-      ];
-    }, array_filter($arguments, fn($arg) => str_starts_with($arg, '-') && !str_starts_with($arg, '--') && !str_contains($arg, '=')));
+  private static function parseTinyFlags(array $arguments): array {
+    foreach ($arguments as $argument) {
+      if (str_starts_with($argument, '-') && !str_starts_with($argument, '--') && !str_contains($argument, '=')) {
+        $result[$argument] = true;
+      }
+    }
+    return $result;
   }
 
-  private function parseOther(array $arguments): array {
-    return array_filter($arguments, fn($arg) => !str_starts_with($arg, '-') && !str_contains($arg, '='));
+  private static function parseOther(array $arguments): array {
+    return array_values(array_filter($arguments, fn($arg) => !str_starts_with($arg, '-') && !str_contains($arg, '=')));
   }
 }
