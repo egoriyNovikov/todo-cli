@@ -46,6 +46,7 @@ class ArgvInput
   }
 
   private static function parseTinyFlags(array $arguments): array {
+    $result = [];
     foreach ($arguments as $argument) {
       if (str_starts_with($argument, '-') && !str_starts_with($argument, '--') && !str_contains($argument, '=')) {
         $result[$argument] = true;
