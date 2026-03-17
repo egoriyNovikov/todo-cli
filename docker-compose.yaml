@@ -4,6 +4,8 @@ services:
       context: .
     ports:
       - 9000:80
+    volumes:
+      - .:/var/www/html
     depends_on:
       db:
         condition: service_healthy
@@ -14,15 +16,6 @@ services:
       - DB_HOST=db
       - DB_NAME=example
       - DB_USER=root
-    develop:
-      watch:
-        - action: sync
-          path: .
-          target: /var/www/html
-          ignore:
-            - vendor/
-            - .git/
-            - db/
   db:
     image: mariadb
     restart: always
